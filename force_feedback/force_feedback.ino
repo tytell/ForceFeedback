@@ -30,7 +30,7 @@ float dt = dt_us / 1e6;
 
 float zeta = 0.2;
 float omega = 2*M_PI;
-float M = 1.0;
+float M = 0.5;
 
 float pos = 0;
 float vel = 0;
@@ -66,13 +66,15 @@ void ISR_timer3_loop(struct tc_module *const module_inst)
   // solves system of differential equations
   Fint = analogRead(A1);
   F = (((float)Fint) / 4095.0) * maxvolts;
+
+  // pos = F;
   
   dpos = vel;
   dvel = F/M - 2*zeta*omega*vel - omega*omega*pos;
 
   vel += dvel * dt;
   pos += dpos * dt;
-
+    
   posint = (int)((pos/outscale*voltscale)*1023);
 
   // writes displacement output
@@ -92,6 +94,7 @@ void loop() {
       case 'C':
         SerialUSB.println("Calibrate!");
         mode = MODE_CALIBRATE;
+        timer.enableInterrupt(0);
         calibrate();
         mode = MODE_WAIT;
         break;
@@ -128,7 +131,12 @@ void calibrate() {
 
   SerialUSB.setTimeout(30000);      // 30 sec
   voltstr = SerialUSB.readStringUntil('\n');
+  for (int i = 0; (i < 5) && (voltstr.length() == 0); i++) {
+    voltstr = SerialUSB.readStringUntil('\n');
+  }
   SerialUSB.setTimeout(1000);
+  SerialUSB.print("DEBUG: ");
+  SerialUSB.println(voltstr);
   
   volts = voltstr.toFloat();
   if (volts == 0) {
@@ -140,5 +148,5 @@ void calibrate() {
     SerialUSB.println(voltscale);
   }
 
-  analogWrite(A0, 0);
+  // analogWrite(A0, 0);
 }
