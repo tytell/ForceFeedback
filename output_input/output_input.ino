@@ -13,7 +13,7 @@ void ISR_timer3_loop(struct tc_module *const module_inst)
   in = (((float)in_int) / 4095.0) * 3.3;
 
   out = in;
-  out_int = (int)1023;  // GLORB!!!!!
+  out_int = (int)(out/3.3 * 1023.0);  // GLORB!!!!!
 
   analogWrite(A0, out_int);
 }
