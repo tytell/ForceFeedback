@@ -70,6 +70,7 @@ void setup() {
   while (!Serial);       // wait for serial to start
   Serial.println("Start");
 
+  show_params();
   Serial.println(command_prompt);
 
   digitalWrite(2, LOW);
@@ -170,9 +171,7 @@ void loop() {
       case 'o':
       case 'O':
         os1 = read_usb_float("What is the output scale? ", outscale);
-        if (os1 > 0) {
-          outscale = os1;
-        } 
+        outscale = os1;
         break;
 
       case 'd':
@@ -186,6 +185,8 @@ void loop() {
       case 'r':
       case 'R':
         Serial.println("Run!");
+        show_params();
+        
         myTimer.begin(feedback_loop, dt_us);
         break;
 
@@ -196,7 +197,8 @@ void loop() {
         break;
 
       default:
-        Serial.println("Unrecognized command");
+        break;
+        // Serial.println("Unrecognized command");
     }
     Serial.println(command_prompt);
   }
@@ -238,4 +240,21 @@ void calibrate() {
   }
 
   analogWrite(AOchan, 0);
+}
+
+void show_params() {
+  Serial.print("Mass: ");
+  Serial.println(M);
+
+  Serial.print("zeta: ");
+  Serial.println(zeta);
+  
+  Serial.print("omega: ");
+  Serial.println(omega / (2*M_PI));
+  
+  Serial.print("Out offset: ");
+  Serial.println(outoffset);
+  
+  Serial.print("Out scale: ");
+  Serial.println(outscale);
 }
